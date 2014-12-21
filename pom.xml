@@ -7,9 +7,7 @@
   <artifactId>adfs-core</artifactId>
   <version>1.0.0</version>
   <packaging>jar</packaging>
-
-  <name>adfs-core</name>
-  <url>http://maven.apache.org</url>
+  <name>ADFS core module</name>
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
