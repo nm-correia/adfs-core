@@ -8,7 +8,7 @@ public class ADFSFileContent implements Serializable, ADFSFile {
 	private long maxSize;
 	
 	public ADFSFileContent(long maxSize) {
-		this.content = new byte[0];
+		this.content = null;
 		this.maxSize = maxSize;
 	}
 	

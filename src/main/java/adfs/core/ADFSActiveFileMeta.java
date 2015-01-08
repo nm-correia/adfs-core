@@ -87,9 +87,10 @@ public class ADFSActiveFileMeta extends ADFSFileMeta {
 	}
 	
 	public boolean isWorthItProcess() {
-		// TODO check new strategy
-		// Now only worth it if reads are at least two times more than
-		return true;
+		if((reads+writes) == 0)
+			return false;
+		else
+			return (reads/(reads+writes)) > 0.6;
 	}
 	
 	@Override
