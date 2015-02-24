@@ -9,12 +9,14 @@ public class ADFSFileMeta implements Serializable, ADFSFile {
 	private String name;	
 	protected boolean active;
 	private Set<String> activeFiles;
+	private long time;
 	private boolean availability;
 
 	public ADFSFileMeta(String name) {
 		this.name = name;
 		this.active = false;
 		this.activeFiles = new HashSet<String>();
+		this.time = System.currentTimeMillis();
 		this.availability = true;
 	}
 
@@ -50,11 +52,21 @@ public class ADFSFileMeta implements Serializable, ADFSFile {
 		return activeFiles.remove(afName);
 	}	
 	
+	public long getTime() {
+		return time;
+	}
+	
+	public void updateTime() {
+		time = System.currentTimeMillis();
+	}
+	
 	@Override
 	public String toString() {
 		return "<name:" + name +
-				",active:" + active +
-				",assocActiveFiles:" + activeFiles + ">";
+				",active?:" + active +
+				",assocActiveFiles:" + activeFiles +
+				",availability:" + availability +
+				",time:" + time + ">";
 	}
 	
 }

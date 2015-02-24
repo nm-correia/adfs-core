@@ -1,6 +1,10 @@
 package adfs.core;
 
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 public class ADFSActiveFileMeta extends ADFSFileMeta {
@@ -9,39 +13,59 @@ public class ADFSActiveFileMeta extends ADFSFileMeta {
 	private String project;
 	private String projectArgs;
 	private String computationArgs;
-	private boolean stale;
-	private Set<String> srcFiles;
-	
+	private Map<String, Long> srcFiles;
+	private boolean compute;
 	private int reads, writes;
 	
 	
-	public ADFSActiveFileMeta (String name) {
+	public ADFSActiveFileMeta(String name) {
 		super(name);
 		this.active = true;
-		this.srcFiles = new HashSet<String>();
-		this.stale = true;
+		this.srcFiles = new HashMap<String, Long>();
 		this.reads = 0;
 		this.writes = 0;
+		this.compute = true;
 	}
 	
 	public boolean isStale() {
-		return stale;
+		for(Entry<String, Long> e: srcFiles.entrySet())
+			if(e.getValue() >= this.getTime())
+				return true;
+
+		return false;
 	}
 	
-	public void setStale(boolean val) {
-		this.stale = val;
+	public boolean toCompute() {
+		return compute;
+	}
+	
+	public void setCompute(boolean val) {
+		compute = val;
+	}
+	
+	public boolean setSrcWriteTime(String src, long newTime) {
+		if(!srcFiles.containsKey(src))
+			return false;
+		else {
+			srcFiles.put(src, newTime);
+			return true;
+		}
+	}
+	
+	public long lastSrcWriteTime() {
+		return Collections.max(srcFiles.values());
 	}
 	
 	public Set<String> getSrcFiles() {
-		return srcFiles;
+		return srcFiles.keySet();
 	}
 	
-	public boolean assocSrcFile(String srcfName) {
-		return srcFiles.add(srcfName);
+	public void assocSrcFile(String srcfName, long time) {
+		srcFiles.put(srcfName, time);
 	}
 	
 	public boolean disassocSrcFile(String srcfName) {
-		return srcFiles.remove(srcfName);
+		return srcFiles.remove(srcfName) != null;
 	}
 	
 	public void setFramework(String framework) {
@@ -86,6 +110,7 @@ public class ADFSActiveFileMeta extends ADFSFileMeta {
 		writes++;
 	}
 	
+	// TODO time and size in consideration
 	public boolean isWorthItProcess() {
 		if((reads+writes) == 0)
 			return false;
@@ -95,12 +120,15 @@ public class ADFSActiveFileMeta extends ADFSFileMeta {
 	
 	@Override
 	public String toString() {
-		return super.toString() +
-				" <ACTIVE - framework:" + framework +
+		return super.toString().substring(0, super.toString().length()-1) +
+				",framework:" + framework +
 				",computationSrc:" + project + " " + projectArgs +
 				",computationArgs:" + computationArgs +
-				",srcFiles:" + srcFiles +
-				",isStale: " + stale + ">";
+				",srcFiles:" + srcFiles.toString() +
+				",reads:" + reads + 
+				",writes:" + writes + 
+				",lastSrcWrite:" + lastSrcWriteTime() +
+				",isStale?: " + isStale() + ">";
 	}
 
 }
