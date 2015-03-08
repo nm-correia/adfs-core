@@ -15,7 +15,11 @@ public class ADFSActiveFileMeta extends ADFSFileMeta {
 	private String computationArgs;
 	private Map<String, Long> srcFiles;
 	private boolean compute;
-	private int reads, writes;
+	private double reads, writes;
+	
+	private double maxSize;
+	private double numComps;
+	private long totalProc;
 	
 	
 	public ADFSActiveFileMeta(String name) {
@@ -25,6 +29,8 @@ public class ADFSActiveFileMeta extends ADFSFileMeta {
 		this.reads = 0;
 		this.writes = 0;
 		this.compute = true;
+		this.numComps = 0;
+		this.totalProc = 0;
 	}
 	
 	public boolean isStale() {
@@ -60,8 +66,8 @@ public class ADFSActiveFileMeta extends ADFSFileMeta {
 		return srcFiles.keySet();
 	}
 	
-	public void assocSrcFile(String srcfName, long time) {
-		srcFiles.put(srcfName, time);
+	public void assocSrcFile(String srcfName) {
+		srcFiles.put(srcfName, this.getTime());
 	}
 	
 	public boolean disassocSrcFile(String srcfName) {
@@ -110,6 +116,15 @@ public class ADFSActiveFileMeta extends ADFSFileMeta {
 		writes++;
 	}
 	
+	public void newProc(long time) {
+		numComps++;
+		totalProc += time;
+	}
+	
+	public double getAvgProcTime() {
+		return totalProc / numComps;
+	}
+	
 	// TODO time and size in consideration
 	public boolean isWorthItProcess() {
 		if((reads+writes) == 0)
@@ -127,6 +142,7 @@ public class ADFSActiveFileMeta extends ADFSFileMeta {
 				",srcFiles:" + srcFiles.toString() +
 				",reads:" + reads + 
 				",writes:" + writes + 
+				",avg proc time:" + getAvgProcTime() + 
 				",lastSrcWrite:" + lastSrcWriteTime() +
 				",isStale?: " + isStale() + ">";
 	}
